@@ -1,0 +1,9 @@
+[submodule "vendor/imgui"]
+	path = vendor/imgui
+	url = https://github.com/ocornut/imgui
+[submodule "vendor/minhook"]
+	path = vendor/minhook
+	url = https://github.com/TsudaKageyu/minhook
+[submodule "vendor/roa-mod-loader"]
+	path = vendor/roa-mod-loader
+	url = https://github.com/raicool/roa-mod-loader
