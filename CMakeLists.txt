@@ -33,3 +33,8 @@ target_include_directories("roa-hook" PRIVATE "vendor/roa-mod-loader/loader/incl
 # imgui
 target_include_directories("roa-hook" PRIVATE "vendor/imgui")
 target_include_directories("roa-hook" PRIVATE "vendor/imgui/backends")
+
+add_custom_command(
+    TARGET "roa-hook" POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/details.yaml" "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}/info.yaml"
+)

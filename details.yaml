@@ -1,0 +1,7 @@
+name: roa-tastudio
+# mod loader version that this mod supports
+loader-version: 0.0.1
+description: rivals 1 mod that implements a tas tool inspired by BizHawk's TAStudio.
+# url of repository to fetch released to update from
+repository: https://github.com/raicool/roa-tastudio
+branch: master
