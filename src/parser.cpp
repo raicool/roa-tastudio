@@ -143,7 +143,6 @@ void input_parser::deserialize(std::fstream* file)
 
 		ctx.frame = std::stoi(frame_str);
 
-		//ctx.raw = 0;
 		ctx.has_angle = false;
 		ctx.tap_jump = false;
 		ctx.neutral = false;

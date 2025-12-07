@@ -1,6 +1,7 @@
 #include "pch.h"
 
-#include "console/console.hpp"
+#include "log.h"
+
 #include "utils/utils.hpp"
 #include "hooks/hooks.hpp"
 #include "game_hook/expert_mode.h"
@@ -10,10 +11,20 @@
 DWORD WINAPI dll(LPVOID hModule)
 {
 #if DEBUG
-	Console::Alloc();
+	AllocConsole();
+
+	SetConsoleTitleA("roa-mod-loader");
+
+	freopen_s(reinterpret_cast<FILE**>(stdin), "conin$", "r", stdin);
+	freopen_s(reinterpret_cast<FILE**>(stdout), "conout$", "w", stdout);
+
+	::ShowWindow(GetConsoleWindow(), SW_SHOW);
 #endif
 
-	LOG("[+] Rendering backend: %s\n", Utils::RenderingBackendToStr());
+	HWND proc_window = Utils::GetProcessWindow();
+
+	loader_log_debug("[+] Rendering backend: DirectX11\n");
+
 	if (Utils::GetRenderingBackend() == NONE)
 	{
 		LOG("[!] Looks like you forgot to set a backend. Will unload after pressing enter...");
@@ -37,17 +48,7 @@ DWORD WINAPI dll(LPVOID hModule)
 	expert_mode::init_hooks((uint32_t)base);
 	MH_EnableHook(MH_ALL_HOOKS);
 
-//	this apparently decides if the cursor shows or not?
-//	TODO: please replace this at some point im begging
-// 
-// 	*(bool*)0x05ec1d5c = true;
-// 	*(bool*)(base + 0x05b71d9a) = true;
-
 	return TRUE;
-
-#if DEBUG
-	Console::Free();
-#endif
 }
 
 
@@ -68,7 +69,18 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	else if (fdwReason == DLL_PROCESS_DETACH && !lpReserved)
 	{
 		Hooks::Free();
-		Console::Free();
+
+#ifndef DISABLE_LOGGING_CONSOLE
+		fclose(stdin);
+		fclose(stdout);
+
+		if (H::bShuttingDown) {
+			::ShowWindow(GetConsoleWindow(), SW_HIDE);
+		}
+		else {
+			FreeConsole();
+		}
+#endif
 
 		FreeLibraryAndExitThread(hModule, 0);
 	}

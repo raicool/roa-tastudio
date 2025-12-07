@@ -14,12 +14,7 @@ file(GLOB IMGUI_SOURCE
     "vendor/imgui/imgui_draw.cpp"
     "vendor/imgui/imgui_demo.cpp"
     "vendor/imgui/backends/imgui_impl_win32.cpp"
-    "vendor/imgui/backends/imgui_impl_dx9.cpp"
-    "vendor/imgui/backends/imgui_impl_dx10.cpp"
     "vendor/imgui/backends/imgui_impl_dx11.cpp"
-    "vendor/imgui/backends/imgui_impl_dx12.cpp"
-    "vendor/imgui/backends/imgui_impl_opengl3.cpp"
-    #"vendor/imgui/backends/imgui_impl_vulkan.cpp"
 )
 
 add_library("roa-hook" SHARED ${CXX_SOURCE} ${IMGUI_SOURCE})
@@ -33,8 +28,8 @@ target_link_libraries("roa-hook" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/vendor/min
 
 # roa-mod-loader
 #add_subdirectory("vendor/roa-mod-loader")
-#target_include_directories("roa-hook" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/vendor/roa-mod-loader/include")
-#target_link_libraries("roa-hook" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/vendor/roa-mod-loader/lib/loader.lib")
+target_include_directories("roa-hook" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/vendor/roa-mod-loader/include")
+target_link_libraries("roa-hook" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/vendor/roa-mod-loader/lib/loader.lib")
 
 # Vulkan SDK
 #find_package(Vulkan REQUIRED)
