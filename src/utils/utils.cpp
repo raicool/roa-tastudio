@@ -4,7 +4,7 @@
 
 #include "utils.hpp"
 
-#include <log.h>
+#include "loader/log.h"
 
 #define RB2STR(x) case x: return #x
 

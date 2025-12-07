@@ -16,9 +16,6 @@
 #include "utils.h"
 //#include "d3d11/d3d11hook.h"
 
-// Minhook
-#include "MinHook.h"
-
 // STL
 #include <iostream>
 #include <fstream>

@@ -52,7 +52,7 @@ void input_parser::set_input_bool(uint32_t frame, uint8_t input_id, bool value)
 	case e_input::CSTICK_LEFT: ctx.cstick_left = value; break;
 	case e_input::CSTICK_DOWN: ctx.cstick_down = value; break;
 	case e_input::TAP_JUMP: ctx.tap_jump = value; break;
-	default: LOG("passed invalid enum parameter into set_input_bool(). input_id = %i\n", input_id);
+	default: loader_log_warn(std::format("passed invalid enum parameter into set_input_bool(). input_id = {}\n", input_id));
 	}
 }
 
@@ -83,7 +83,7 @@ bool input_parser::get_input_bool(uint32_t frame, uint8_t input_id)
 	case e_input::CSTICK_LEFT: return ctx.cstick_left;
 	case e_input::CSTICK_DOWN: return ctx.cstick_down;
 	case e_input::TAP_JUMP: return ctx.tap_jump;
-	default: LOG("passed invalid enum parameter into get_input_bool(). input_id = %i\n", input_id);
+	default: loader_log_warn(std::format("passed invalid enum parameter into get_input_bool(). input_id = {}\n", input_id));
 	}
 }
 
@@ -96,7 +96,7 @@ void input_parser::set_input_u32(uint32_t frame, uint8_t input_id, uint32_t valu
 	switch (input_id)
 	{
 	case e_input::ANGLE: ctx.angle = value; break;
-	default: LOG("passed invalid enum parameter into set_input_bool(). input_id = %i\n", input_id);
+	default: loader_log_warn(std::format("passed invalid enum parameter into set_input_bool(). input_id = {}\n", input_id));
 	}
 }
 
@@ -104,7 +104,7 @@ void input_parser::deserialize(std::fstream* file)
 {
 	if (file->bad())
 	{
-		LOG("[!] error processing recording input file! (file->bad() == true)");
+		loader_log_warn("error processing recording input file! (file->bad() == true)");
 		return;
 	}
 
@@ -124,7 +124,7 @@ void input_parser::deserialize(std::fstream* file)
 
 	if (begin == -1)
 	{
-		LOG("[!] error processing recording input file! is this a valid input file? (_file_buffer.find_first_of(':', 0) == -1)\n");
+		loader_log_error("error processing recording input file! is this a valid input file? (_file_buffer.find_first_of(':', 0) == -1)\n");
 		return;
 	}
 
@@ -365,5 +365,5 @@ void input_parser::serialize(std::string& path, bool debug)
 	memcpy((void*)expert_mode::custom_playback_inputs_data, (void*)s_buffer.c_str(), s_buffer.size());
 	expert_mode::overwrite = true;
 
-	LOG(std::format("Saved to directory {}\n", std::format("{}", path)).c_str());
+	loader_log_info(std::format("Saved to directory {}\n", std::format("{}", path)).c_str());
 }

@@ -1,8 +1,10 @@
 #pragma once
 
-#include "console/console.hpp"
 #include "parser.h"
 
+#include "loader/log.h"
+
+#include <format>
 #include <vector>
 #include <fstream>
 
@@ -56,5 +58,5 @@ template <typename T>
 inline void add_panel()
 {
 	panels.emplace_back((base_panel*)new T());
-	LOG("[!] new panel added at %i\n", panels.size());
+	loader_log_debug(std::format("new panel added at {}\n", panels.size()));
 }

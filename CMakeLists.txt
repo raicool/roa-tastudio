@@ -22,21 +22,11 @@ target_include_directories("roa-hook" PRIVATE "src")
 target_precompile_headers("roa-hook" PRIVATE "src/pch.h")
 
 # vendors
-# minhook
-target_include_directories("roa-hook" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/vendor/minhook/include")
-target_link_libraries("roa-hook" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/vendor/minhook/lib/libMinHook.x86.lib")
-
 # roa-mod-loader
-#add_subdirectory("vendor/roa-mod-loader")
-target_include_directories("roa-hook" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/vendor/roa-mod-loader/include")
-target_link_libraries("roa-hook" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/vendor/roa-mod-loader/lib/loader.lib")
-
-# Vulkan SDK
-#find_package(Vulkan REQUIRED)
-#message(STATUS VULKAN: ${Vulkan_INCLUDE_DIRS})
-#target_include_directories("roa-hook" PUBLIC ${Vulkan_INCLUDE_DIRS})
-#target_link_libraries("roa-hook" PUBLIC ${Vulkan_LIBRARIES})
+add_subdirectory("vendor/roa-mod-loader")
+target_link_libraries("roa-hook" PRIVATE roa-mod-loader)
+target_include_directories("roa-hook" PRIVATE "vendor/roa-mod-loader/loader/include")
 
 # imgui
-target_include_directories("roa-hook" PUBLIC "vendor/imgui")
-target_include_directories("roa-hook" PUBLIC "vendor/imgui/backends")
+target_include_directories("roa-hook" PRIVATE "vendor/imgui")
+target_include_directories("roa-hook" PRIVATE "vendor/imgui/backends")

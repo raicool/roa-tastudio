@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "backend.hpp"
-#include "console/console.hpp"
+#include "loader/log.h"
 
 #ifdef ENABLE_BACKEND_DX11
 #include <Windows.h>
@@ -26,11 +26,12 @@ static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
 static ID3D11RenderTargetView* g_pd3dRenderTarget = NULL;
 static IDXGISwapChain* g_pSwapChain = NULL;
 
-static void CleanupDeviceD3D11( );
-static void CleanupRenderTarget( );
+static void CleanupDeviceD3D11();
+static void CleanupRenderTarget();
 static void RenderImGui_DX11(IDXGISwapChain* pSwapChain);
 
-static bool CreateDeviceD3D11(HWND hWnd) {
+static bool CreateDeviceD3D11(HWND hWnd)
+{
     // Create the D3DDevice
     DXGI_SWAP_CHAIN_DESC swapChainDesc = { };
     swapChainDesc.Windowed = TRUE;
@@ -40,23 +41,28 @@ static bool CreateDeviceD3D11(HWND hWnd) {
     swapChainDesc.OutputWindow = hWnd;
     swapChainDesc.SampleDesc.Count = 1;
 
-    const D3D_FEATURE_LEVEL featureLevels[] = {
+    const D3D_FEATURE_LEVEL featureLevels[] = 
+    {
         D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_10_0,
     };
+
     HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_NULL, NULL, 0, featureLevels, 2, D3D11_SDK_VERSION, &swapChainDesc, &g_pSwapChain, &g_pd3dDevice, nullptr, nullptr);
-    if (hr != S_OK) {
-        LOG("[!] D3D11CreateDeviceAndSwapChain() failed. [rv: %lu]\n", hr);
+    if (hr != S_OK)
+    {
+        loader_log_error(std::format("[!] D3D11CreateDeviceAndSwapChain() failed. [rv: {}]\n", hr));
         return false;
     }
 
     return true;
 }
 
-static void CreateRenderTarget(IDXGISwapChain* pSwapChain) {
+static void CreateRenderTarget(IDXGISwapChain* pSwapChain)
+{
     ID3D11Texture2D* pBackBuffer = NULL;
     pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-    if (pBackBuffer) {
+    if (pBackBuffer)
+    {
         DXGI_SWAP_CHAIN_DESC sd;
         pSwapChain->GetDesc(&sd);
 
@@ -65,14 +71,15 @@ static void CreateRenderTarget(IDXGISwapChain* pSwapChain) {
         desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
         g_pd3dDevice->CreateRenderTargetView(pBackBuffer, &desc, &g_pd3dRenderTarget);
-        pBackBuffer->Release( );
+        pBackBuffer->Release();
     }
 }
 
 static std::add_pointer_t<HRESULT WINAPI(IDXGISwapChain*, UINT, UINT)> oPresent;
 static HRESULT WINAPI hkPresent(IDXGISwapChain* pSwapChain,
                                 UINT SyncInterval,
-                                UINT Flags) {
+                                UINT Flags) 
+{
     RenderImGui_DX11(pSwapChain);
 
     return oPresent(pSwapChain, SyncInterval, Flags);
@@ -82,7 +89,8 @@ static std::add_pointer_t<HRESULT WINAPI(IDXGISwapChain*, UINT, UINT, const DXGI
 static HRESULT WINAPI hkPresent1(IDXGISwapChain* pSwapChain,
                                  UINT SyncInterval,
                                  UINT PresentFlags,
-                                 const DXGI_PRESENT_PARAMETERS* pPresentParameters) {
+                                 const DXGI_PRESENT_PARAMETERS* pPresentParameters) 
+{
     RenderImGui_DX11(pSwapChain);
 
     return oPresent1(pSwapChain, SyncInterval, PresentFlags, pPresentParameters);
@@ -94,8 +102,9 @@ static HRESULT WINAPI hkResizeBuffers(IDXGISwapChain* pSwapChain,
                                       UINT Width,
                                       UINT Height,
                                       DXGI_FORMAT NewFormat,
-                                      UINT SwapChainFlags) {
-    CleanupRenderTarget( );
+                                      UINT SwapChainFlags) 
+{
+    CleanupRenderTarget();
 
     return oResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
 }
@@ -108,8 +117,9 @@ static HRESULT WINAPI hkResizeBuffers1(IDXGISwapChain* pSwapChain,
                                        DXGI_FORMAT NewFormat,
                                        UINT SwapChainFlags,
                                        const UINT* pCreationNodeMask,
-                                       IUnknown* const* ppPresentQueue) {
-    CleanupRenderTarget( );
+                                       IUnknown* const* ppPresentQueue) 
+{
+    CleanupRenderTarget();
 
     return oResizeBuffers1(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags, pCreationNodeMask, ppPresentQueue);
 }
@@ -118,8 +128,9 @@ static std::add_pointer_t<HRESULT WINAPI(IDXGIFactory*, IUnknown*, DXGI_SWAP_CHA
 static HRESULT WINAPI hkCreateSwapChain(IDXGIFactory* pFactory,
                                         IUnknown* pDevice,
                                         DXGI_SWAP_CHAIN_DESC* pDesc,
-                                        IDXGISwapChain** ppSwapChain) {
-    CleanupRenderTarget( );
+                                        IDXGISwapChain** ppSwapChain) 
+{
+    CleanupRenderTarget();
 
     return oCreateSwapChain(pFactory, pDevice, pDesc, ppSwapChain);
 }
@@ -131,8 +142,9 @@ static HRESULT WINAPI hkCreateSwapChainForHwnd(IDXGIFactory* pFactory,
                                                const DXGI_SWAP_CHAIN_DESC1* pDesc,
                                                const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
                                                IDXGIOutput* pRestrictToOutput,
-                                               IDXGISwapChain1** ppSwapChain) {
-    CleanupRenderTarget( );
+                                               IDXGISwapChain1** ppSwapChain) 
+{
+    CleanupRenderTarget();
 
     return oCreateSwapChainForHwnd(pFactory, pDevice, hWnd, pDesc, pFullscreenDesc, pRestrictToOutput, ppSwapChain);
 }
@@ -143,8 +155,9 @@ static HRESULT WINAPI hkCreateSwapChainForCoreWindow(IDXGIFactory* pFactory,
                                                      IUnknown* pWindow,
                                                      const DXGI_SWAP_CHAIN_DESC1* pDesc,
                                                      IDXGIOutput* pRestrictToOutput,
-                                                     IDXGISwapChain1** ppSwapChain) {
-    CleanupRenderTarget( );
+                                                     IDXGISwapChain1** ppSwapChain) 
+{
+    CleanupRenderTarget();
 
     return oCreateSwapChainForCoreWindow(pFactory, pDevice, pWindow, pDesc, pRestrictToOutput, ppSwapChain);
 }
@@ -154,21 +167,25 @@ static HRESULT WINAPI hkCreateSwapChainForComposition(IDXGIFactory* pFactory,
                                                       IUnknown* pDevice,
                                                       const DXGI_SWAP_CHAIN_DESC1* pDesc,
                                                       IDXGIOutput* pRestrictToOutput,
-                                                      IDXGISwapChain1** ppSwapChain) {
-    CleanupRenderTarget( );
+                                                      IDXGISwapChain1** ppSwapChain) 
+{
+    CleanupRenderTarget();
 
     return oCreateSwapChainForComposition(pFactory, pDevice, pDesc, pRestrictToOutput, ppSwapChain);
 }
 
-namespace DX11 {
-    void Hook(HWND hwnd) {
-        if (!CreateDeviceD3D11(GetConsoleWindow( ))) {
-            LOG("[!] CreateDeviceD3D11() failed.\n");
+namespace DX11 
+{
+    void Hook(HWND hwnd) 
+    {
+        if (!CreateDeviceD3D11(GetConsoleWindow()))
+        {
+            loader_log_error("CreateDeviceD3D11() failed.\n");
             return;
         }
 
-        LOG("[+] DirectX11: g_pd3dDevice: 0x%p\n", g_pd3dDevice);
-        LOG("[+] DirectX11: g_pSwapChain: 0x%p\n", g_pSwapChain);
+        loader_log_trace(std::format("DirectX11: g_pd3dDevice: {:08x}\n", (int)g_pd3dDevice));
+        loader_log_trace(std::format("DirectX11: g_pSwapChain: {:08x}\n", (int)g_pSwapChain));
 
         if (g_pd3dDevice) {
             Menu::InitializeContext(hwnd);
@@ -184,7 +201,7 @@ namespace DX11 {
             pDXGIAdapter->GetParent(IID_PPV_ARGS(&pIDXGIFactory));
 
             if (!pIDXGIFactory) {
-                LOG("[!] pIDXGIFactory is NULL.\n");
+                loader_log_error("pIDXGIFactory is NULL.\n");
                 return;
             }
 
@@ -208,27 +225,27 @@ namespace DX11 {
 
             CleanupDeviceD3D11( );
 
-            static MH_STATUS cscStatus = MH_CreateHook(reinterpret_cast<void**>(fnCreateSwapChain), &hkCreateSwapChain, reinterpret_cast<void**>(&oCreateSwapChain));
-            static MH_STATUS cschStatus = MH_CreateHook(reinterpret_cast<void**>(fnCreateSwapChainForHwndChain), &hkCreateSwapChainForHwnd, reinterpret_cast<void**>(&oCreateSwapChainForHwnd));
-            static MH_STATUS csccwStatus = MH_CreateHook(reinterpret_cast<void**>(fnCreateSwapChainForCWindowChain), &hkCreateSwapChainForCoreWindow, reinterpret_cast<void**>(&oCreateSwapChainForCoreWindow));
-            static MH_STATUS csccStatus = MH_CreateHook(reinterpret_cast<void**>(fnCreateSwapChainForCompChain), &hkCreateSwapChainForComposition, reinterpret_cast<void**>(&oCreateSwapChainForComposition));
+            static int32_t cscStatus = loader_hook_create(reinterpret_cast<void**>(fnCreateSwapChain), &hkCreateSwapChain, reinterpret_cast<void**>(&oCreateSwapChain));
+            static int32_t cschStatus = loader_hook_create(reinterpret_cast<void**>(fnCreateSwapChainForHwndChain), &hkCreateSwapChainForHwnd, reinterpret_cast<void**>(&oCreateSwapChainForHwnd));
+            static int32_t csccwStatus = loader_hook_create(reinterpret_cast<void**>(fnCreateSwapChainForCWindowChain), &hkCreateSwapChainForCoreWindow, reinterpret_cast<void**>(&oCreateSwapChainForCoreWindow));
+            static int32_t csccStatus = loader_hook_create(reinterpret_cast<void**>(fnCreateSwapChainForCompChain), &hkCreateSwapChainForComposition, reinterpret_cast<void**>(&oCreateSwapChainForComposition));
 
-            static MH_STATUS presentStatus = MH_CreateHook(reinterpret_cast<void**>(fnPresent), &hkPresent, reinterpret_cast<void**>(&oPresent));
-            static MH_STATUS present1Status = MH_CreateHook(reinterpret_cast<void**>(fnPresent1), &hkPresent1, reinterpret_cast<void**>(&oPresent1));
+            static int32_t presentStatus = loader_hook_create(reinterpret_cast<void**>(fnPresent), &hkPresent, reinterpret_cast<void**>(&oPresent));
+            static int32_t present1Status = loader_hook_create(reinterpret_cast<void**>(fnPresent1), &hkPresent1, reinterpret_cast<void**>(&oPresent1));
 
-            static MH_STATUS resizeStatus = MH_CreateHook(reinterpret_cast<void**>(fnResizeBuffers), &hkResizeBuffers, reinterpret_cast<void**>(&oResizeBuffers));
-            static MH_STATUS resize1Status = MH_CreateHook(reinterpret_cast<void**>(fnResizeBuffers1), &hkResizeBuffers1, reinterpret_cast<void**>(&oResizeBuffers1));
+            static int32_t resizeStatus = loader_hook_create(reinterpret_cast<void**>(fnResizeBuffers), &hkResizeBuffers, reinterpret_cast<void**>(&oResizeBuffers));
+            static int32_t resize1Status = loader_hook_create(reinterpret_cast<void**>(fnResizeBuffers1), &hkResizeBuffers1, reinterpret_cast<void**>(&oResizeBuffers1));
 
-            MH_EnableHook(fnCreateSwapChain);
-            MH_EnableHook(fnCreateSwapChainForHwndChain);
-            MH_EnableHook(fnCreateSwapChainForCWindowChain);
-            MH_EnableHook(fnCreateSwapChainForCompChain);
+            loader_hook_enable(fnCreateSwapChain);
+            loader_hook_enable(fnCreateSwapChainForHwndChain);
+            loader_hook_enable(fnCreateSwapChainForCWindowChain);
+            loader_hook_enable(fnCreateSwapChainForCompChain);
 
-            MH_EnableHook(fnPresent);
-            MH_EnableHook(fnPresent1);
+            loader_hook_enable(fnPresent);
+            loader_hook_enable(fnPresent1);
 
-            MH_EnableHook(fnResizeBuffers);
-            MH_EnableHook(fnResizeBuffers1);
+            loader_hook_enable(fnResizeBuffers);
+            loader_hook_enable(fnResizeBuffers1);
         }
     }
 

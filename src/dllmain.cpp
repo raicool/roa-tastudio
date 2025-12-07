@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "log.h"
+#include "loader/log.h"
 
 #include "utils/utils.hpp"
 #include "hooks/hooks.hpp"
@@ -25,28 +25,13 @@ DWORD WINAPI dll(LPVOID hModule)
 
 	loader_log_debug("[+] Rendering backend: DirectX11\n");
 
-	if (Utils::GetRenderingBackend() == NONE)
-	{
-		LOG("[!] Looks like you forgot to set a backend. Will unload after pressing enter...");
-		std::cin.get();
-
-		FreeLibraryAndExitThread(reinterpret_cast<HMODULE>(hModule), 0);
-		return 0;
-	}
-
 	HMODULE base = GetModuleHandle(0);
-
-	if (MH_Initialize() == MH_OK)
-		LOG("Minhook OK\n");
-	else
-		LOG("Minhook could not initialize...\n");
 
 	add_panel<tastudio>();
 
 	Hooks::Init();
 
 	expert_mode::init_hooks((uint32_t)base);
-	MH_EnableHook(MH_ALL_HOOKS);
 
 	return TRUE;
 }
@@ -57,8 +42,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	if (fdwReason == DLL_PROCESS_ATTACH)
 	{
 		DisableThreadLibraryCalls(hModule);
-
-		Utils::SetRenderingBackend(DIRECTX11);
 
 		HANDLE hHandle = CreateThread(NULL, 0, dll, hModule, 0, NULL);
 		if (hHandle != NULL)

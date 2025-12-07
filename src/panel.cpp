@@ -272,11 +272,11 @@ void tastudio::render()
 			current_file.open(current_file_directory, std::ios::in | std::ios::out);
 			if (!current_file)
 			{
-				LOG("[!] File stream couldnt be opened correctly.\n");
+				loader_log_warn("file stream couldnt be opened correctly.\n");
 			}
 			else
 			{
-				LOG("[!] Loaded file %s\n", current_file_directory.c_str());
+				loader_log_trace(std::format("Loaded file {}\n", current_file_directory.c_str()));
 				parser.deserialize(&current_file);
 				analog_ctx = nullptr;
 			}
@@ -408,11 +408,11 @@ void tastudio::input_analog(controller* input, uint32_t frame)
 		if (new_frame)
 		{
 			analog_ctx = new_frame;
-			LOG("new input added at %i\n", analog_ctx->frame);
+			loader_log_trace(std::format("new input added at {}\n", analog_ctx->frame));
 		}
 		else
 		{
-			LOG("tastudio::input_analog(): new input could not be created.");
+			loader_log_warn("tastudio::input_analog(): new input could not be created.");
 		}
 	}
 

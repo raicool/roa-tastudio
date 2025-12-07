@@ -2,7 +2,8 @@
 
 #include "pch.h"
 
-#include "console/console.hpp"
+#include "loader/log.h"
+
 #include "panel.h"
 #include "hooks/hooks.hpp"
 #include "utils/utils.hpp"
