@@ -10,4 +10,6 @@ namespace expert_mode
 	inline volatile uint32_t current_frame;
 
 	void init_hooks(uint32_t base_ptr);
+	void enable_hooks(uint32_t base_ptr);
+	void disable_hooks(uint32_t base_ptr);
 }

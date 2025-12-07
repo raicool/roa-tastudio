@@ -20,18 +20,17 @@ DWORD WINAPI dll(LPVOID hModule)
 
 	::ShowWindow(GetConsoleWindow(), SW_SHOW);
 #endif
-
 	HWND proc_window = Utils::GetProcessWindow();
+	HMODULE base = GetModuleHandle(0);
 
 	loader_log_debug("Rendering backend: DirectX11");
-
-	HMODULE base = GetModuleHandle(0);
 
 	add_panel<tastudio>();
 
 	Hooks::Init();
 
 	expert_mode::init_hooks((uint32_t)base);
+	expert_mode::enable_hooks((uint32_t)base);
 
 	return TRUE;
 }

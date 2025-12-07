@@ -92,4 +92,16 @@ _playback_update_exit_detour:
 		loader_hook_create(reinterpret_cast<void**>(base_ptr + 0x0293f3e3), &detour_expert_mode_playback_update, reinterpret_cast<void**>(&expert_mode_playback_update));
 		loader_hook_create(reinterpret_cast<void**>(base_ptr + 0x0514a84a), &detour_expert_mode_playback_read_frame, reinterpret_cast<void**>(&expert_mode_playback_read_frame));
 	}
+
+	void enable_hooks(uint32_t base_ptr)
+	{
+		loader_hook_enable(reinterpret_cast<void**>(base_ptr + 0x0293f3e3));
+		loader_hook_enable(reinterpret_cast<void**>(base_ptr + 0x0514a84a));
+	}
+
+	void disable_hooks(uint32_t base_ptr)
+	{
+		loader_hook_disable(reinterpret_cast<void**>(base_ptr + 0x0293f3e3));
+		loader_hook_disable(reinterpret_cast<void**>(base_ptr + 0x0514a84a));
+	}
 }
