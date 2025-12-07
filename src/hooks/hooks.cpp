@@ -17,7 +17,7 @@ static DWORD WINAPI ReinitializeGraphicalHooks(LPVOID lpParam)
 {
     std::lock_guard<std::mutex> guard{g_mReinitHooksGuard};
 
-    loader_log_trace("hooks will reinitialize!\n");
+    loader_log_trace("hooks will reinitialize!");
 
     HWND hNewWindow = Utils::GetProcessWindow();
     while (hNewWindow == reinterpret_cast<HWND>(lpParam))

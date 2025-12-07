@@ -23,7 +23,7 @@ DWORD WINAPI dll(LPVOID hModule)
 
 	HWND proc_window = Utils::GetProcessWindow();
 
-	loader_log_debug("[+] Rendering backend: DirectX11\n");
+	loader_log_debug("Rendering backend: DirectX11");
 
 	HMODULE base = GetModuleHandle(0);
 

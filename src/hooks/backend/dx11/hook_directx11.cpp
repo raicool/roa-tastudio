@@ -50,7 +50,7 @@ static bool CreateDeviceD3D11(HWND hWnd)
     HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_NULL, NULL, 0, featureLevels, 2, D3D11_SDK_VERSION, &swapChainDesc, &g_pSwapChain, &g_pd3dDevice, nullptr, nullptr);
     if (hr != S_OK)
     {
-        loader_log_error(std::format("[!] D3D11CreateDeviceAndSwapChain() failed. [rv: {}]\n", hr));
+        loader_log_error(std::format("D3D11CreateDeviceAndSwapChain() failed. [rv: {}]", hr));
         return false;
     }
 
@@ -180,12 +180,12 @@ namespace DX11
     {
         if (!CreateDeviceD3D11(GetConsoleWindow()))
         {
-            loader_log_error("CreateDeviceD3D11() failed.\n");
+            loader_log_error("CreateDeviceD3D11() failed.");
             return;
         }
 
-        loader_log_trace(std::format("DirectX11: g_pd3dDevice: {:08x}\n", (int)g_pd3dDevice));
-        loader_log_trace(std::format("DirectX11: g_pSwapChain: {:08x}\n", (int)g_pSwapChain));
+        loader_log_trace(std::format("DirectX11: g_pd3dDevice: {:08x}", (int)g_pd3dDevice));
+        loader_log_trace(std::format("DirectX11: g_pSwapChain: {:08x}", (int)g_pSwapChain));
 
         if (g_pd3dDevice) {
             Menu::InitializeContext(hwnd);

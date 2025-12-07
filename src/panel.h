@@ -58,5 +58,5 @@ template <typename T>
 inline void add_panel()
 {
 	panels.emplace_back((base_panel*)new T());
-	loader_log_debug(std::format("new panel added at {}\n", panels.size()));
+	loader_log_debug(std::format("new panel added at {}", panels.size()));
 }
