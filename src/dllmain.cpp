@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "loader/log.h"
+#include "loader/load.h"
 
 #include "utils/utils.hpp"
 #include "hooks/hooks.hpp"
@@ -10,24 +11,14 @@
 
 DWORD WINAPI dll(LPVOID hModule)
 {
-#if DEBUG
-	AllocConsole();
-
-	SetConsoleTitleA("roa-mod-loader");
-
-	freopen_s(reinterpret_cast<FILE**>(stdin), "conin$", "r", stdin);
-	freopen_s(reinterpret_cast<FILE**>(stdout), "conout$", "w", stdout);
-
-	::ShowWindow(GetConsoleWindow(), SW_SHOW);
-#endif
 	HWND proc_window = Utils::GetProcessWindow();
 	HMODULE base = GetModuleHandle(0);
-
-	loader_log_debug("Rendering backend: DirectX11");
 
 	add_panel<tastudio>();
 
 	Hooks::Init();
+
+	check_mod_repository("roa-hook");
 
 	expert_mode::init_hooks((uint32_t)base);
 	expert_mode::enable_hooks((uint32_t)base);
@@ -51,18 +42,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	else if (fdwReason == DLL_PROCESS_DETACH && !lpReserved)
 	{
 		Hooks::Free();
-
-#ifndef DISABLE_LOGGING_CONSOLE
-		fclose(stdin);
-		fclose(stdout);
-
-		if (H::bShuttingDown) {
-			::ShowWindow(GetConsoleWindow(), SW_HIDE);
-		}
-		else {
-			FreeConsole();
-		}
-#endif
 
 		FreeLibraryAndExitThread(hModule, 0);
 	}

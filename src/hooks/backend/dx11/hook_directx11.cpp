@@ -3,7 +3,6 @@
 #include "backend.hpp"
 #include "loader/log.h"
 
-#ifdef ENABLE_BACKEND_DX11
 #include <Windows.h>
 
 #include <d3d11.h>
@@ -288,32 +287,38 @@ static void CleanupDeviceD3D11( ) {
     }
 }
 
-static void RenderImGui_DX11(IDXGISwapChain* pSwapChain) {
-    if (!ImGui::GetIO( ).BackendRendererUserData) {
-        if (SUCCEEDED(pSwapChain->GetDevice(IID_PPV_ARGS(&g_pd3dDevice)))) {
+static void RenderImGui_DX11(IDXGISwapChain* pSwapChain) 
+{
+    if (!ImGui::GetIO( ).BackendRendererUserData) 
+    {
+        if (SUCCEEDED(pSwapChain->GetDevice(IID_PPV_ARGS(&g_pd3dDevice)))) 
+        {
             g_pd3dDevice->GetImmediateContext(&g_pd3dDeviceContext);
             ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
         }
     }
 
-    if (!H::bShuttingDown) {
-        if (!g_pd3dRenderTarget) {
+    if (!H::bShuttingDown) 
+    {
+        if (!g_pd3dRenderTarget) 
+        {
             CreateRenderTarget(pSwapChain);
         }
 
-        if (ImGui::GetCurrentContext( ) && g_pd3dRenderTarget) {
-            ImGui_ImplDX11_NewFrame( );
-            ImGui_ImplWin32_NewFrame( );
-            ImGui::NewFrame( );
+        if (ImGui::GetCurrentContext() && g_pd3dRenderTarget) 
+        {
+            ImGui_ImplDX11_NewFrame();
+            ImGui_ImplWin32_NewFrame();
+            ImGui::NewFrame();
 
-            Menu::Render( );
+            Menu::Render();
 
             if (!Menu::bClosing)
             {
-                ImGui::Render( );
+                ImGui::Render();
 
                 g_pd3dDeviceContext->OMSetRenderTargets(1, &g_pd3dRenderTarget, NULL);
-                ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData( ));
+                ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
             }
         }
     }
@@ -323,10 +328,3 @@ static void RenderImGui_DX11(IDXGISwapChain* pSwapChain) {
         Utils::UnloadDLL();
     }
 }
-#else
-#include <Windows.h>
-namespace DX11 {
-    void Hook(HWND hwnd) { LOG("[!] DirectX11 backend is not enabled!\n"); }
-    void Unhook( ) { }
-} // namespace DX11
-#endif
