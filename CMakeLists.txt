@@ -6,6 +6,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
+file(READ version ROA_TASTUDIO_VERSION)
+
 file(GLOB_RECURSE CXX_SOURCE "src/*.cpp")
 file(GLOB IMGUI_SOURCE 
     "vendor/imgui/imgui.cpp"
@@ -18,6 +20,7 @@ file(GLOB IMGUI_SOURCE
 )
 
 add_library("roa-hook" SHARED ${CXX_SOURCE} ${IMGUI_SOURCE})
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}-${ROA_TASTUDIO_VERSION}-msvc")
 target_include_directories("roa-hook" PRIVATE "src")
 target_precompile_headers("roa-hook" PRIVATE "src/pch.h")
 
