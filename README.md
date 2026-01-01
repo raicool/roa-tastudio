@@ -4,12 +4,12 @@
 [![GitHub last commit](https://badgen.net/github/last-commit/raicool/roa-tastudio/master)](https://github.com/raicool/roa-tastudio/commits/master)
 
 rivals 1 mod that implements a tas tool inspired by BizHawk's TAStudio.
-###### requires roa-mod-loader to be installed to Rivals of Aether's game directory
+###### requires [roa-mod-loader](https://github.com/raicool/roa-mod-loader) to be installed to Rivals of Aether's game directory
 
 <img width="2249" height="1265" alt="RivalsofAether_GVG7mwkqPg" src="https://github.com/user-attachments/assets/b9a4a9a4-7ed2-470e-9bfc-3c869ef7f09e" />
 
 # building & installing
-requires Visual Studio 2022 in order to be built
+requires Visual Studio 2022 in order to be built (older visual studio versions most likely work but i have not tested them)
 
 1. clone the repository as well as submodules:
 ```
