@@ -3,6 +3,7 @@
 #include "parser.h"
 #include "panel.h"
 #include "game_hook/expert_mode.h"
+#include <loader/yyc.h>
 
 constexpr uint8_t column_size = 20;
 constexpr uint32_t table_transparency = 0x40000000;
@@ -127,28 +128,28 @@ void tastudio::input_table()
 
 					frame_number(current_frame);
 					input_analog(buffer, current_frame);
-					input_button(e_input::NEUTRAL, buffer->neutral, buffer_xor.neutral);
-					input_button(e_input::ANALOG_MODIFIER, buffer->analog_modifier, buffer_xor.analog_modifier);
-					input_button(e_input::ANALOG_HARD_UP, buffer->analog_hup, buffer_xor.analog_hup);
-					input_button(e_input::ANALOG_HARD_RIGHT, buffer->analog_hright, buffer_xor.analog_hright);
-					input_button(e_input::ANALOG_HARD_LEFT, buffer->analog_hleft, buffer_xor.analog_hleft);
-					input_button(e_input::ANALOG_HARD_DOWN, buffer->analog_hdown, buffer_xor.analog_hdown);
-					input_button(e_input::ANALOG_LIGHT_UP, buffer->analog_lup, buffer_xor.analog_lup);
-					input_button(e_input::ANALOG_LIGHT_RIGHT, buffer->analog_lright, buffer_xor.analog_lright);
-					input_button(e_input::ANALOG_LIGHT_LEFT, buffer->analog_lleft, buffer_xor.analog_lleft);
-					input_button(e_input::ANALOG_LIGHT_DOWN, buffer->analog_ldown, buffer_xor.analog_ldown);
+					input_button(e_input::NEUTRAL, buffer->neutral);
+					input_button(e_input::ANALOG_MODIFIER, buffer->analog_modifier);
+					input_button(e_input::ANALOG_HARD_UP, buffer->analog_hup);
+					input_button(e_input::ANALOG_HARD_RIGHT, buffer->analog_hright);
+					input_button(e_input::ANALOG_HARD_LEFT, buffer->analog_hleft);
+					input_button(e_input::ANALOG_HARD_DOWN, buffer->analog_hdown);
+					input_button(e_input::ANALOG_LIGHT_UP, buffer->analog_lup);
+					input_button(e_input::ANALOG_LIGHT_RIGHT, buffer->analog_lright);
+					input_button(e_input::ANALOG_LIGHT_LEFT, buffer->analog_lleft);
+					input_button(e_input::ANALOG_LIGHT_DOWN, buffer->analog_ldown);
 
-					input_button(e_input::ATTACK, buffer->attack, buffer_xor.attack);
-					input_button(e_input::SPECIAL, buffer->special, buffer_xor.special);
-					input_button(e_input::STRONG, buffer->strong, buffer_xor.strong);
-					input_button(e_input::PARRY, buffer->parry, buffer_xor.parry);
-					input_button(e_input::JUMP, buffer->jump, buffer_xor.jump);
-					input_button(e_input::TAUNT, buffer->taunt, buffer_xor.taunt);
-					input_button(e_input::CSTICK_UP, buffer->cstick_up, buffer_xor.cstick_up);
-					input_button(e_input::CSTICK_RIGHT, buffer->cstick_right, buffer_xor.cstick_right);
-					input_button(e_input::CSTICK_LEFT, buffer->cstick_left, buffer_xor.cstick_left);
-					input_button(e_input::CSTICK_DOWN, buffer->cstick_down, buffer_xor.cstick_down);
-					input_button(e_input::TAP_JUMP, buffer->tap_jump, buffer_xor.tap_jump);
+					input_button(e_input::ATTACK, buffer->attack);
+					input_button(e_input::SPECIAL, buffer->special);
+					input_button(e_input::STRONG, buffer->strong);
+					input_button(e_input::PARRY, buffer->parry);
+					input_button(e_input::JUMP, buffer->jump);
+					input_button(e_input::TAUNT, buffer->taunt);
+					input_button(e_input::CSTICK_UP, buffer->cstick_up);
+					input_button(e_input::CSTICK_RIGHT, buffer->cstick_right);
+					input_button(e_input::CSTICK_LEFT, buffer->cstick_left);
+					input_button(e_input::CSTICK_DOWN, buffer->cstick_down);
+					input_button(e_input::TAP_JUMP, buffer->tap_jump);
 
 					ImGui::PopStyleColor(2);
 				}
@@ -167,8 +168,6 @@ bool should_open_add_frames_popup = false;
 
 void tastudio::render()
 {
-	//ImGui::ShowDemoWindow();
-
 	ImGui::Begin("TAStudio", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar);
 
 	if (ImGui::BeginMenuBar())
@@ -276,7 +275,7 @@ void tastudio::render()
 			}
 			else
 			{
-				loader_log_trace(std::format("Loaded file {}", current_file_directory.c_str()));
+				loader_log_trace("Loaded file {}", current_file_directory.c_str());
 				parser.deserialize(&current_file);
 				analog_ctx = nullptr;
 			}
@@ -358,16 +357,16 @@ void tastudio::render()
 					ImGui::GetWindowDrawList()->AddLine(pos, line_end, should_snap ? 0xffff7f00 : 0xffffffff, 5);
 
 					ImGui::TableNextColumn();
-					// 					ImGui::Checkbox("Neutral", &analog_ctx->neutral);
-					// 					ImGui::Checkbox("Modifier", &analog_ctx->analog_modifier);
-					// 					ImGui::Checkbox("Hard Up", &analog_ctx->analog_hup);
-					// 					ImGui::Checkbox("Hard Right", &analog_ctx->analog_hright);
-					// 					ImGui::Checkbox("Hard Left", &analog_ctx->analog_hleft);
-					// 					ImGui::Checkbox("Hard Down", &analog_ctx->analog_hdown);
-					// 					ImGui::Checkbox("Light Up", &analog_ctx->analog_lup);
-					// 					ImGui::Checkbox("Light Right", &analog_ctx->analog_lright);
-					// 					ImGui::Checkbox("Light Left", &analog_ctx->analog_lleft);
-					// 					ImGui::Checkbox("Light Down", &analog_ctx->analog_ldown);
+// 					ImGui::Checkbox("Neutral", &analog_ctx->neutral);
+// 					ImGui::Checkbox("Modifier", &analog_ctx->analog_modifier);
+// 					ImGui::Checkbox("Hard Up", &analog_ctx->analog_hup);
+// 					ImGui::Checkbox("Hard Right", &analog_ctx->analog_hright);
+// 					ImGui::Checkbox("Hard Left", &analog_ctx->analog_hleft);
+// 					ImGui::Checkbox("Hard Down", &analog_ctx->analog_hdown);
+// 					ImGui::Checkbox("Light Up", &analog_ctx->analog_lup);
+// 					ImGui::Checkbox("Light Right", &analog_ctx->analog_lright);
+// 					ImGui::Checkbox("Light Left", &analog_ctx->analog_lleft);
+// 					ImGui::Checkbox("Light Down", &analog_ctx->analog_ldown);
 					ImGui::EndTable();
 				}
 			}
@@ -420,7 +419,7 @@ void tastudio::input_analog(controller* input, uint32_t frame)
 	ImGui::PopID();
 }
 
-void tastudio::input_button(uint32_t input_id, bool down, bool just_pressed)
+void tastudio::input_button(uint32_t input_id, bool down)
 {
 	cell++;
 	ImGui::PushID(cell);
@@ -496,4 +495,35 @@ void tastudio::frame_number(uint32_t frame)
 void metrics::render()
 {
 	ImGui::ShowMetricsWindow();
+}
+
+
+void roomview::render()
+{
+	if (ImGui::Begin("Room View"))
+	{
+		static size_t room_id;
+		ImGui::InputScalar("room_id", ImGuiDataType_U32, &room_id);
+
+		if (ImGui::Button("Set"))
+		{
+			current_room = get_room_by_index(room_id);
+		}
+
+		if (current_room)
+		{
+			ImGui::Text("0x%08x", current_room);
+			ImGui::InputInt("Width", &current_room->m_Width);
+			ImGui::InputInt("Height", &current_room->m_Height);
+			ImGui::Text("instance handle: 0x%08x", current_room->m_InstanceHandle);
+// 			if (ImGui::TreeNode("Internals"))
+// 			{
+// 				CRoomInternal internals = current_room->GetMembers();
+// 				ImGui::Text("name: %s", internals.m_Name);
+// 				ImGui::TreePop();
+// 			}
+		}
+
+		ImGui::End();
+	}
 }

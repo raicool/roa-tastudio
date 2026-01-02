@@ -3,30 +3,24 @@
 #include "parser.h"
 
 #include "loader/log.h"
+#include "loader/modpanel.h"
+
+#include "GMLScriptEnv/gml.h"
 
 #include <format>
 #include <vector>
 #include <fstream>
 
-struct base_panel
+struct test_panel : modpanel
 {
-	base_panel() : visible(true) {};
-
-	bool visible; //< flag for if panel will be rendered or not
-
-	virtual void render() = 0;
-};
-
-struct test_panel : base_panel
-{
-	test_panel() : base_panel() {};
+	test_panel() : modpanel() {};
 
 	void render() override;
 };
 
-struct tastudio : base_panel
+struct tastudio : modpanel
 {
-	tastudio() : base_panel() {};
+	tastudio() : modpanel() {};
 
 	std::string current_file_directory;
 	std::fstream current_file;
@@ -41,22 +35,20 @@ struct tastudio : base_panel
 	void render() override;
 	void input_table();
 	void input_analog(controller* input, uint32_t frame);
-	void input_button(uint32_t input_id, bool down, bool just_pressed = false);
+	void input_button(uint32_t input_id, bool down);
 	void frame_number(uint32_t frame);
 };
 
-struct metrics : base_panel
+struct roomview : modpanel
 {
-	metrics() : base_panel() {};
+	CRoom* current_room;
 
 	void render() override;
 };
 
-inline std::vector<base_panel*> panels;
-
-template <typename T>
-inline void add_panel()
+struct metrics : modpanel
 {
-	panels.emplace_back((base_panel*)new T());
-	loader_log_debug(std::format("new panel added at {}", panels.size()));
-}
+	metrics() : modpanel() {};
+
+	void render() override;
+};

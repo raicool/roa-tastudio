@@ -52,7 +52,7 @@ namespace Utils
 
 		char name[128];
 		GetWindowTextA(hwnd, name, RTL_NUMBER_OF(name));
-		loader_log_trace(std::format("got window with name : '{}'", name));
+		loader_log_trace("got window with name : '{}'", name);
 
 		return hwnd;
 	}
@@ -66,15 +66,5 @@ namespace Utils
 	HMODULE GetCurrentImageBase()
 	{
 		return (HINSTANCE)(&__ImageBase);
-	}
-
-	int GetCorrectDXGIFormat(int eCurrentFormat)
-	{
-		switch (eCurrentFormat)
-		{
-			case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB: return DXGI_FORMAT_R8G8B8A8_UNORM;
-		}
-
-		return eCurrentFormat;
 	}
 }
