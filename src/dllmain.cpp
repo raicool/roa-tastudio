@@ -3,7 +3,6 @@
 #include "loader/log.h"
 #include "loader/load.h"
 #include "loader/yyc.h"
-#include "loader/modpanel.h"
 #include "loader/d3d11_hook.h"
 
 #include "game_hook/expert_mode.h"
@@ -15,10 +14,9 @@
 DWORD WINAPI dll(LPVOID hModule)
 {
 	HMODULE base = GetModuleHandle(0);
+	loader_log_debug("base: {}", (void*)base);
 
 	loader_fetch_mod_repository("roa-hook");
-
-	ImGui::CreateContext();
 
 	panel_init();
 
@@ -26,6 +24,7 @@ DWORD WINAPI dll(LPVOID hModule)
 	add_panel<roomview>();
 
 	loader_add_present_callback(render_panels);
+	loader_add_wndproc_callback(handle_wndproc);
 
 	CRoom* room = loader_get_room_by_index(0);
 	if (room->m_Caption)
@@ -34,7 +33,7 @@ DWORD WINAPI dll(LPVOID hModule)
 	}
 
 	expert_mode::init_hooks((uint32_t)base);
-	expert_mode::enable_hooks((uint32_t)base);
+	expert_mode::enable_hooks();
 	
 	return TRUE;
 }

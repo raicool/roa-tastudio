@@ -7,18 +7,29 @@
 #include <loader/yyc.h>
 #include <loader/d3d11_hook.h>
 
+#include <imgui_impl_win32.h>
+
 constexpr uint8_t column_size = 20;
 constexpr uint32_t table_transparency = 0x40000000;
 
 ID3D11Device* d3d_device;
 ID3D11DeviceContext* d3d_device_context;
+WNDPROC _wndproc;
 
 void panel_init()
 {
 	d3d_device_context = loader_get_d3d_device_context();
 	d3d_device = loader_get_d3d_device();
 
-	ImGui_ImplWin32_Init(loader_get_window());
+	ImGui::CreateContext();
+	HWND window = loader_get_window();
+	ImGui_ImplWin32_Init(window);
+}
+
+void handle_wndproc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 }
 
 void render_panels(ID3D11RenderTargetView* render_target, IDXGISwapChain* swapchain)
@@ -32,7 +43,7 @@ void render_panels(ID3D11RenderTargetView* render_target, IDXGISwapChain* swapch
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	for (mod_panel* _panel : panels)
+	for (base_panel* _panel : panels)
 	{
 		if (_panel->visible) _panel->render();
 	}

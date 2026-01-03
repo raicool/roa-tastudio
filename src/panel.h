@@ -3,7 +3,6 @@
 #include "parser.h"
 
 #include "loader/log.h"
-#include "loader/modpanel.h"
 
 #include "GMLScriptEnv/gml.h"
 
@@ -11,16 +10,25 @@
 #include <vector>
 #include <fstream>
 
-struct test_panel : mod_panel
+struct base_panel
 {
-	test_panel() : mod_panel() {};
+	base_panel() : visible(true) {};
+
+	bool visible; //< flag for if panel will be rendered or not
+
+	virtual void render() = 0;
+};
+
+struct test_panel : base_panel
+{
+	test_panel() : base_panel() {};
 
 	void render() override;
 };
 
-struct tastudio : mod_panel
+struct tastudio : base_panel
 {
-	tastudio() : mod_panel() {};
+	tastudio() : base_panel() {};
 
 	std::string current_file_directory;
 	std::fstream current_file;
@@ -39,29 +47,30 @@ struct tastudio : mod_panel
 	void frame_number(uint32_t frame);
 };
 
-struct roomview : mod_panel
+struct roomview : base_panel
 {
 	CRoom* current_room;
 
 	void render() override;
 };
 
-struct metrics : mod_panel
+struct metrics : base_panel
 {
-	metrics() : mod_panel() {};
+	metrics() : base_panel() {};
 
 	void render() override;
 };
 
-inline std::vector<mod_panel*> panels;
+inline std::vector<base_panel*> panels;
 
 template<typename T>
 inline void add_panel()
 {
-	panels.emplace_back((mod_panel*)new T());
+	panels.emplace_back((base_panel*)new T());
 	loader_log_debug("new panel added at {}", panels.size());
 }
 
 // initializes d3d11 context variables
 void panel_init();
+void handle_wndproc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void render_panels(ID3D11RenderTargetView*, IDXGISwapChain*);
