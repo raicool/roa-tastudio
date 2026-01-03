@@ -3,10 +3,45 @@
 #include "parser.h"
 #include "panel.h"
 #include "game_hook/expert_mode.h"
+
 #include <loader/yyc.h>
+#include <loader/d3d11_hook.h>
 
 constexpr uint8_t column_size = 20;
 constexpr uint32_t table_transparency = 0x40000000;
+
+ID3D11Device* d3d_device;
+ID3D11DeviceContext* d3d_device_context;
+
+void panel_init()
+{
+	d3d_device_context = loader_get_d3d_device_context();
+	d3d_device = loader_get_d3d_device();
+
+	ImGui_ImplWin32_Init(loader_get_window());
+}
+
+void render_panels(ID3D11RenderTargetView* render_target, IDXGISwapChain* swapchain)
+{
+	if (!ImGui::GetIO().BackendRendererUserData)
+	{
+		ImGui_ImplDX11_Init(d3d_device, d3d_device_context);
+	}
+
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	for (mod_panel* _panel : panels)
+	{
+		if (_panel->visible) _panel->render();
+	}
+
+	ImGui::Render();
+
+	d3d_device_context->OMSetRenderTargets(1, &render_target, NULL);
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
 
 enum table_pallette
 {
@@ -507,7 +542,7 @@ void roomview::render()
 
 		if (ImGui::Button("Set"))
 		{
-			current_room = get_room_by_index(room_id);
+			current_room = loader_get_room_by_index(room_id);
 		}
 
 		if (current_room)

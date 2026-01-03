@@ -1,5 +1,6 @@
-.global detour_expert_mode_playback_update
-.global detour_expert_mode_playback_read_frame
+
+global detour_expert_mode_playback_update
+global detour_expert_mode_playback_read_frame
 
 #
 # hooks into a subroutine that is called to read from the input playback buffer
@@ -11,7 +12,7 @@
 # esi = current playback buffer offset
 # edi = playback buffer size
 #
-_playback_update_enter_detour:
+_playback_read_frame_enter_detour:
 	push edx #< clear registers to stack
 	push ebx #
 
@@ -59,7 +60,6 @@ _playback_read_frame_restore_original:
 	mov eax, ebx
 	jmp _playback_read_frame_exit_detour
 
-detour_expert_mode_playback_update:
 _playback_update_enter_detour:
 	push esi
 	mov esi, expert_mode::current_frame

@@ -6,7 +6,6 @@
 #include "loader/modpanel.h"
 #include "loader/d3d11_hook.h"
 
-#include "utils/utils.hpp"
 #include "game_hook/expert_mode.h"
 
 #include "GMLScriptEnv/gml.h"
@@ -15,21 +14,24 @@
 
 DWORD WINAPI dll(LPVOID hModule)
 {
-	HWND proc_window = Utils::GetProcessWindow();
 	HMODULE base = GetModuleHandle(0);
 
-	ImGui::SetCurrentContext(loader_get_imgui_context());
+	loader_fetch_mod_repository("roa-hook");
 
-	add_panel(new tastudio());
-	add_panel(new roomview());
+	ImGui::CreateContext();
 
-	CRoom* room = get_room_by_index(0);
+	panel_init();
+
+	add_panel<tastudio>();
+	add_panel<roomview>();
+
+	loader_add_present_callback(render_panels);
+
+	CRoom* room = loader_get_room_by_index(0);
 	if (room->m_Caption)
 	{
 		loader_log_info(room->m_Caption);
 	}
-
-	check_mod_repository("roa-hook");
 
 	expert_mode::init_hooks((uint32_t)base);
 	expert_mode::enable_hooks((uint32_t)base);

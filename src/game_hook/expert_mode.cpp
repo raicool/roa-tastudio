@@ -86,22 +86,80 @@ _playback_update_exit_detour:
 			jmp expert_mode_playback_update
 		}
 	}
+	uint32_t playback_update_addr = 0;
+	uint32_t playback_read_frame_addr = 0;
 
 	void init_hooks(uint32_t base_ptr)
 	{
-		loader_hook_create(reinterpret_cast<void**>(base_ptr + 0x0293f3e3), &detour_expert_mode_playback_update, reinterpret_cast<void**>(&expert_mode_playback_update));
-		loader_hook_create(reinterpret_cast<void**>(base_ptr + 0x0514a84a), &detour_expert_mode_playback_read_frame, reinterpret_cast<void**>(&expert_mode_playback_read_frame));
+		//
+		// hook expert_mode_playback_update
+		//
+
+		// instructions near expert_mode update subroutine
+		std::vector<uint8_t> update_subr_pat =
+		{
+			0x8b, 0x86, '?', '?',        // mov ebp, dword ptr [esi + 0x????]
+			0x48,                        // dec eax
+			0xa9, 0xfc, 0xff, 0xff, 0x00 // test eax, 0x00fffffc
+		};
+
+		playback_update_addr = (uint32_t)loader_search_memory(update_subr_pat);
+		if (!playback_update_addr)
+		{
+			loader_log_error("could not find the expert_mode update subroutine!");
+		}
+		else
+		{
+			loader_hook_create(reinterpret_cast<void**>(playback_update_addr), &detour_expert_mode_playback_update, reinterpret_cast<void**>(&expert_mode_playback_update));
+		}
+
+		//
+		// hook expert_mode_playback_read_frame
+		//
+
+		// instructions near expert_mode read frame subroutine
+		std::vector<uint8_t> read_frame_subr_pat =
+		{
+			0xc7, 0x86, '?', '?', '?', 0xeb, 0x00, 0x00, 0x00, // mov dword ptr [esi + 0x????], 0xeb
+			0x50,                                              // push eax
+			0xe8, '?', '?', '?', '?',                          // call 0x00401680 (builtin gml function, func address may move)
+			0x83, 0xc4, 0x04                                   // add esp, 0x4
+		};
+
+		playback_read_frame_addr = (uint32_t)loader_search_memory(read_frame_subr_pat);
+		if (!playback_read_frame_addr)
+		{
+			loader_log_error("could not find the expert_mode read frame subroutine!");
+		}
+		else
+		{
+			loader_hook_create(reinterpret_cast<void**>(playback_read_frame_addr), &detour_expert_mode_playback_read_frame, reinterpret_cast<void**>(&expert_mode_playback_read_frame));
+		}
 	}
 
 	void enable_hooks(uint32_t base_ptr)
 	{
-		loader_hook_enable(reinterpret_cast<void**>(base_ptr + 0x0293f3e3));
-		loader_hook_enable(reinterpret_cast<void**>(base_ptr + 0x0514a84a));
+		if (playback_update_addr)
+		{
+			loader_hook_enable(reinterpret_cast<void**>(playback_update_addr));
+		}
+
+		if (playback_read_frame_addr)
+		{
+			loader_hook_enable(reinterpret_cast<void**>(playback_read_frame_addr));
+		}
 	}
 
 	void disable_hooks(uint32_t base_ptr)
 	{
-		loader_hook_disable(reinterpret_cast<void**>(base_ptr + 0x0293f3e3));
-		loader_hook_disable(reinterpret_cast<void**>(base_ptr + 0x0514a84a));
+		if (playback_update_addr)
+		{
+			loader_hook_disable(reinterpret_cast<void**>(playback_update_addr));
+		}
+
+		if (playback_read_frame_addr)
+		{
+			loader_hook_disable(reinterpret_cast<void**>(playback_read_frame_addr));
+		}
 	}
 }

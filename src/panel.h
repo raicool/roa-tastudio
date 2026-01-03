@@ -11,16 +11,16 @@
 #include <vector>
 #include <fstream>
 
-struct test_panel : modpanel
+struct test_panel : mod_panel
 {
-	test_panel() : modpanel() {};
+	test_panel() : mod_panel() {};
 
 	void render() override;
 };
 
-struct tastudio : modpanel
+struct tastudio : mod_panel
 {
-	tastudio() : modpanel() {};
+	tastudio() : mod_panel() {};
 
 	std::string current_file_directory;
 	std::fstream current_file;
@@ -39,16 +39,29 @@ struct tastudio : modpanel
 	void frame_number(uint32_t frame);
 };
 
-struct roomview : modpanel
+struct roomview : mod_panel
 {
 	CRoom* current_room;
 
 	void render() override;
 };
 
-struct metrics : modpanel
+struct metrics : mod_panel
 {
-	metrics() : modpanel() {};
+	metrics() : mod_panel() {};
 
 	void render() override;
 };
+
+inline std::vector<mod_panel*> panels;
+
+template<typename T>
+inline void add_panel()
+{
+	panels.emplace_back((mod_panel*)new T());
+	loader_log_debug("new panel added at {}", panels.size());
+}
+
+// initializes d3d11 context variables
+void panel_init();
+void render_panels(ID3D11RenderTargetView*, IDXGISwapChain*);
