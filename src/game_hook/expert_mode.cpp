@@ -19,7 +19,7 @@ namespace expert_mode
 			// esi = current playback buffer offset
 			// edi = playback buffer size
 			//
-_playback_update_enter_detour:
+_playback_read_frame_enter_detour:
 			push edx //< clear registers to stack
 			push ebx //
 
@@ -89,7 +89,7 @@ _playback_update_exit_detour:
 	uint32_t playback_update_addr = 0;
 	uint32_t playback_read_frame_addr = 0;
 
-	void init_hooks(uint32_t base_ptr)
+	void init_hooks(uint32_t base)
 	{
 		//
 		// hook expert_mode_playback_update
@@ -98,9 +98,15 @@ _playback_update_exit_detour:
 		// instructions near expert_mode update subroutine
 		std::vector<uint8_t> update_subr_pat =
 		{
-			0x8b, 0x86, '?', '?',        // mov ebp, dword ptr [esi + 0x????]
-			0x48,                        // dec eax
-			0xa9, 0xfc, 0xff, 0xff, 0x00 // test eax, 0x00fffffc
+			0x8b, 0x86, 0x6c, 0x28, 0x00, 0x00, // mov ebp, dword ptr [esi + 0x65b8]
+			0x48,                               // dec eax
+			0xa9, 0xfc, 0xff, 0xff, 0x00,        // test eax, 0x00fffffc
+			0x75, 0x0f,
+			0x8d, 0x86, '?', '?', '?', '?',
+			0x50,
+			0xe8, '?', '?', '?', '?',
+			0x83, 0xc4, 0x04,
+			0x83, 0xc4, 0x18
 		};
 
 		playback_update_addr = (uint32_t)loader_search_memory(update_subr_pat);
@@ -110,6 +116,8 @@ _playback_update_exit_detour:
 		}
 		else
 		{
+			playback_update_addr += 0x400000;
+			playback_update_addr += 0x3;
 			loader_hook_create(reinterpret_cast<void**>(playback_update_addr), &detour_expert_mode_playback_update, reinterpret_cast<void**>(&expert_mode_playback_update));
 		}
 
@@ -120,12 +128,13 @@ _playback_update_exit_detour:
 		// instructions near expert_mode read frame subroutine
 		std::vector<uint8_t> read_frame_subr_pat =
 		{
-			0xc7, 0x86, '?', '?', '?', 0xeb, 0x00, 0x00, 0x00, // mov dword ptr [esi + 0x????], 0xeb
-			0x50,                                              // push eax
-			0xe8, '?', '?', '?', '?',                          // call 0x00401680 (builtin gml function, func address may move)
-			0x83, 0xc4, 0x04                                   // add esp, 0x4
+			0xc7, 0x86, 0xe8, 0x08, 0x00, 0x00, 0xeb, 0x00, 0x00, 0x00, // mov dword ptr [esi + 0x????], 0xeb
+			0x50,                                                       // push eax
+			0xe8, '?', '?', '?', '?',                                   // call 0x00401680 (builtin gml function, func address may move)
+			0x83, 0xc4, 0x04,                                           // add esp, 0x4
+			0x8b, 0x86, 0x44                                            // mov eax, dword ptr [esi + 0x244] (this is a struct offset, prob will change /shrug)
 		};
-
+		
 		playback_read_frame_addr = (uint32_t)loader_search_memory(read_frame_subr_pat);
 		if (!playback_read_frame_addr)
 		{
@@ -133,11 +142,13 @@ _playback_update_exit_detour:
 		}
 		else
 		{
+			playback_read_frame_addr += 0x400000;
+			playback_read_frame_addr += 0x4;
 			loader_hook_create(reinterpret_cast<void**>(playback_read_frame_addr), &detour_expert_mode_playback_read_frame, reinterpret_cast<void**>(&expert_mode_playback_read_frame));
 		}
 	}
 
-	void enable_hooks(uint32_t base_ptr)
+	void enable_hooks()
 	{
 		if (playback_update_addr)
 		{
@@ -150,7 +161,7 @@ _playback_update_exit_detour:
 		}
 	}
 
-	void disable_hooks(uint32_t base_ptr)
+	void disable_hooks()
 	{
 		if (playback_update_addr)
 		{
