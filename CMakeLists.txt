@@ -20,7 +20,8 @@ file(GLOB IMGUI_SOURCE
 )
 
 add_library("roa-hook" SHARED ${CXX_SOURCE} ${IMGUI_SOURCE})
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}-v${ROA_TASTUDIO_VERSION}-${CMAKE_CXX_COMPILER_ID}")
+#set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}-v${ROA_TASTUDIO_VERSION}-${CMAKE_CXX_COMPILER_ID}")
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}")
 target_include_directories("roa-hook" PRIVATE "src")
 target_precompile_headers("roa-hook" PRIVATE "src/pch.h")
 

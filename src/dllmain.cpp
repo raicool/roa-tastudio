@@ -1,12 +1,12 @@
 #include "pch.h"
 
+#include "game_hook/expert_mode.h"
+#include "mod.h"
+
 #include "loader/log.h"
 #include "loader/load.h"
 #include "loader/yyc.h"
 #include "loader/d3d11_hook.h"
-
-#include "game_hook/expert_mode.h"
-
 #include "GMLScriptEnv/gml.h"
 
 #define DEBUG 1
@@ -16,7 +16,8 @@ DWORD WINAPI dll(LPVOID hModule)
 	HMODULE base = GetModuleHandle(0);
 	loader_log_debug("base: {}", (void*)base);
 
-	loader_fetch_mod_repository("roa-hook");
+	std::string mod_name_str = MOD_NAME;
+	loader_fetch_mod_repository(mod_name_str);
 
 	panel_init();
 

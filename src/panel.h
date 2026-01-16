@@ -72,5 +72,17 @@ inline void add_panel()
 
 // initializes d3d11 context variables
 void panel_init();
-void handle_wndproc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-void render_panels(ID3D11RenderTargetView*, IDXGISwapChain*);
+
+void handle_wndproc(
+	const HWND hWnd, 
+	UINT uMsg, 
+	WPARAM wParam, 
+	LPARAM lParam
+);
+
+void render_panels(
+	ID3D11RenderTargetView* render_target,
+	IDXGISwapChain* swapchain,
+	ID3D11Device* d3d_device,
+	ID3D11DeviceContext* d3d_device_context
+);

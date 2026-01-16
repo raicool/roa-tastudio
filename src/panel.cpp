@@ -12,27 +12,41 @@
 constexpr uint8_t column_size = 20;
 constexpr uint32_t table_transparency = 0x40000000;
 
-ID3D11Device* d3d_device;
-ID3D11DeviceContext* d3d_device_context;
-WNDPROC _wndproc;
+enum table_pallette
+{
+	// last 2 least significant bits are omitted and overwritten by table_transparency
+	// abgr8888
+	REGULAR_FRAME = 0x002bde52,
+	UNIQUE_FRAME = 0x0051b05f,
+	CURRENT_FRAME = 0x00f1b05f,
+
+	ANALOG_HOVERED = 0x003bfe62
+};
 
 void panel_init()
 {
-	d3d_device_context = loader_get_d3d_device_context();
-	d3d_device = loader_get_d3d_device();
-
 	ImGui::CreateContext();
 	HWND window = loader_get_window();
 	ImGui_ImplWin32_Init(window);
 }
 
-void handle_wndproc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+void handle_wndproc(
+	const HWND hWnd, 
+	UINT uMsg, 
+	WPARAM wParam, 
+	LPARAM lParam
+)
 {
 	LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 }
 
-void render_panels(ID3D11RenderTargetView* render_target, IDXGISwapChain* swapchain)
+void render_panels(
+	ID3D11RenderTargetView* render_target, 
+	IDXGISwapChain* swapchain, 
+	ID3D11Device* d3d_device, 
+	ID3D11DeviceContext* d3d_device_context
+)
 {
 	if (!ImGui::GetIO().BackendRendererUserData)
 	{
@@ -53,17 +67,6 @@ void render_panels(ID3D11RenderTargetView* render_target, IDXGISwapChain* swapch
 	d3d_device_context->OMSetRenderTargets(1, &render_target, NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
-
-enum table_pallette
-{
-	// last 2 least significant bits are omitted and overwritten by table_transparency
-	// abgr8888
-	REGULAR_FRAME = 0x002bde52,
-	UNIQUE_FRAME = 0x0051b05f,
-	CURRENT_FRAME = 0x00f1b05f,
-
-	ANALOG_HOVERED = 0x003bfe62
-};
 
 constexpr uint8_t column_count = 14;
 const char* file_names[] =
