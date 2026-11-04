@@ -1,61 +1,31 @@
 #include "pch.h"
 
-#include "game_hook/expert_mode.h"
 #include "mod.h"
+#include "player.h"
+#include "savestate.h"
 
 #include "loader/log.h"
 #include "loader/load.h"
 #include "loader/yyc.h"
 #include "loader/d3d11_hook.h"
-#include "GMLScriptEnv/gml.h"
 
-#define DEBUG 1
-
-DWORD WINAPI dll(LPVOID hModule)
+LOADER_MOD_ENTRY initialize(loader_info* info)
 {
-	HMODULE base = GetModuleHandle(0);
-	loader_log_debug("base: {}", (void*)base);
+	loader_mod& mod_instance = loader_mod::get();
 
-	std::string mod_name_str = MOD_NAME;
-	loader_fetch_mod_repository(mod_name_str);
+	mod_instance.name = MOD_NAME;
+	mod_instance.description = "rivals 1 mod that implements a tas tool inspired by BizHawk's TAStudio.";
+	mod_instance.repository = "https://github.com/raicool/roa-tastudio";
+	mod_instance.commit_hash = 0x00000000;
 
-	panel_init();
+	imgui_init();
 
-	add_panel<tastudio>();
-	add_panel<roomview>();
+	Player::init_oplayer_hook();
+	SavestateManager::init_advance_frame_hook();
 
 	loader_add_present_callback(render_panels);
+
 	loader_add_wndproc_callback(handle_wndproc);
 
-	CRoom* room = loader_get_room_by_index(0);
-	if (room->m_Caption)
-	{
-		loader_log_info(room->m_Caption);
-	}
-
-	expert_mode::init_hooks((uint32_t)base);
-	expert_mode::enable_hooks();
-	
-	return TRUE;
-}
-
-
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
-{
-	if (fdwReason == DLL_PROCESS_ATTACH)
-	{
-		DisableThreadLibraryCalls(hModule);
-
-		HANDLE hHandle = CreateThread(NULL, 0, dll, hModule, 0, NULL);
-		if (hHandle != NULL)
-		{
-			CloseHandle(hHandle);
-		}
-	}
-	else if (fdwReason == DLL_PROCESS_DETACH && !lpReserved)
-	{
-		FreeLibraryAndExitThread(hModule, 0);
-	}
-
-	return TRUE;
+	return mod_instance;
 }

@@ -1,3 +1,3 @@
 #pragma once
 
-#define MOD_NAME "roa-hook"
+#define MOD_NAME "roa-tastudio"
