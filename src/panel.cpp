@@ -13,6 +13,7 @@
 #define TOOLTIP(x, ...) if (ImGui::IsItemHovered()) ImGui::SetTooltip(x, __VA_ARGS__)
 
 constexpr uint8_t column_size = 20;
+constexpr uint8_t column_count = 23;
 constexpr uint32_t table_transparency = 0x20000000;
 
 extern std::array<InputParser, 10> parsers;
@@ -254,8 +255,6 @@ void render_panels(
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
-constexpr uint8_t column_count = 14;
-
 static uint32_t cell;
 void render_parser(InputParser* parser)
 {
@@ -333,7 +332,6 @@ void render_parser(InputParser* parser)
 
 		constexpr ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY | 
 			ImGuiTableFlags_HighlightHoveredColumn | ImGuiTableFlags_NoKeepColumnsVisible | ImGuiTableFlags_NoHostExtendX;
-		constexpr uint8_t column_count = 24;
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
@@ -347,7 +345,7 @@ void render_parser(InputParser* parser)
 			ImGui::TableSetupColumn("Analog", ImGuiTableColumnFlags_WidthFixed, column_size + 40);
 
 
-			ImGui::TableSetupColumn("Neutral", ImGuiTableColumnFlags_WidthFixed, column_size);
+			//ImGui::TableSetupColumn("Neutral", ImGuiTableColumnFlags_WidthFixed, column_size);
 			ImGui::TableSetupColumn("Modifier", ImGuiTableColumnFlags_WidthFixed, column_size);
 			ImGui::TableSetupColumn("Hard Up", ImGuiTableColumnFlags_WidthFixed, column_size);
 			ImGui::TableSetupColumn("Hard Right", ImGuiTableColumnFlags_WidthFixed, column_size);
@@ -437,7 +435,7 @@ void render_parser(InputParser* parser)
 
 						frame_number(parser, current_frame);
 						input_analog(parser, buffer, current_frame);
-						input_button(parser, InputTypeEnum::NEUTRAL, buffer->neutral);
+						//input_button(parser, InputTypeEnum::NEUTRAL, buffer->neutral);
 						input_button(parser, InputTypeEnum::ANALOG_MODIFIER, buffer->analog_modifier);
 						input_button(parser, InputTypeEnum::ANALOG_HARD_UP, buffer->analog_hup);
 						input_button(parser, InputTypeEnum::ANALOG_HARD_RIGHT, buffer->analog_hright);
@@ -584,6 +582,7 @@ void input_analog(InputParser* parser, Controller* input, uint32_t frame)
 		Controller* new_frame = parser->set_frame(frame, *input);
 		if (new_frame)
 		{
+			new_frame->neutral = true;
 			analog_ctx.parser = parser;
 			analog_ctx.input = *new_frame;
 			analog_ctx.ready = true;
