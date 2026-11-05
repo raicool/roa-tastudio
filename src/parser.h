@@ -161,6 +161,9 @@ public:
 
 	Controller* set_frame(uint32_t frame_idx, Controller frame, bool overwrite = false)
 	{
+		// set frame after to defaults if it doesnt exist already
+		_init_frame(frame_idx + 1);
+
 		if (_map.contains(frame_idx) && !overwrite)
 		{
 			_map[frame_idx].frame = frame_idx;
@@ -169,17 +172,25 @@ public:
 
 		_init_frame(frame_idx, frame, true);
 
-		// set frame after to defaults if it doesnt exist already
-		_init_frame(frame_idx + 1, { 0 });
-
 		serialize();
 
 		return &_map[frame_idx];
 	}
 
-	void _init_frame(uint32_t frame_idx, Controller frame, bool overwrite = true)
+	void _init_frame(uint32_t frame_idx, Controller frame = { 0 }, bool overwrite = false)
 	{
-		if (_map.contains(frame_idx) == false || overwrite)
+		bool should_write = overwrite;
+
+		if (_map.contains(frame_idx))
+		{
+			should_write |= _map[frame_idx].unique == false;
+		}
+		else
+		{
+			should_write = true;
+		}
+
+		if (should_write)
 		{
 			_map[frame_idx] = frame;
 			_map[frame_idx].unique = true;
@@ -191,7 +202,7 @@ public:
 	{
 		if (_map.contains(frame_idx))
 		{
-			_map[frame_idx] = { 0 };
+			_map[frame_idx] = { .neutral = true };
 		}
 
 		serialize();
@@ -215,10 +226,13 @@ public:
 		serialize();
 	}
 
-	Controller* add_frame(uint32_t frame_idx, uint32_t amount = 1, Controller default_input = { 0 })
+	Controller* add_frame(uint32_t frame_idx, uint32_t amount = 1, Controller default_input = { .neutral = true })
 	{
 		// initialize frame_idx if its not set in _map
-		_init_frame(frame_idx, { 0 });
+		_init_frame(frame_idx);
+
+		// set frame after to defaults if it doesnt exist already
+		_init_frame(frame_idx + 1);
 
 		_map.emplace(std::pair<uint32_t, Controller>(last_frame_number() + amount, default_input));
 
@@ -234,7 +248,7 @@ public:
 
 				if (it->first <= frame_idx)
 				{
-					it->second.unique = true;
+					it->second.unique = false;
 					return &it->second;
 				}
 			}

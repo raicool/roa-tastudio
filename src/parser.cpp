@@ -209,7 +209,7 @@ void InputParser::deserialize(char* replay_string)
 void InputParser::serialize()
 {
 	s_buffer.clear();
-	Controller input_xor{ .neutral = true };
+	Controller input_xor{ 0 };
 	uint32_t angle_xor{ 0 };
 	uint32_t has_angle_xor{ 0 };
 
@@ -239,12 +239,17 @@ void InputParser::serialize()
 
 			// "240y 90zUPMX242uxZ"
 
+			if (input_xor.analog_modifier)
+			{
+				s_buffer.push_back(_entry.neutral ? 'N' : 'n');
+			}
+
 			if (input_xor.neutral)
 			{
 				s_buffer.push_back(_entry.neutral ? 'z' : 'Z');
 			}
 
-			if (_entry.has_angle)
+			if (angle_xor)
 			{
 				// padding format e.g. "y  2" "y 24" "y240"
 				s_buffer.append(std::format("y{:3}", _entry.angle));
