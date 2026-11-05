@@ -191,7 +191,7 @@ void imgui_render()
 
 				if (this_line == "RTAS")
 				{
-					uint8_t player_idx = 0;
+					uint8_t player_idx = 1;
 					while (std::getline(replay_file, this_line))
 					{
 						if (player_idx > parsers.size())
